@@ -3,7 +3,7 @@
 *.pdf
 vscode
 *.json
-#philo
+#./philo
 #philo_bonus
 
 # Prerequisites
