@@ -21,16 +21,22 @@
 
 typedef struct s_philo
 {
-	int					num_philos;
+	pthread_t		thread;
+	int				philo_id;
+	size_t			last_meal;
+	bool			eating;
+	int				meals_eaten;
 }						t_philo;
 
 typedef struct s_prog
 {
-	int					num_philos;
-	int					time_to_die;
-	int					time_to_eat;
-	int					time_to_sleep;
-	int					num_eats;
+	int				num_philos;
+	int				time_to_die;
+	int				time_to_eat;
+	int				time_to_sleep;
+	int				num_eats;
+//	int				*dead;
+	t_philo			*philos;
 }						t_prog;
 
 
