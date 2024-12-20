@@ -5,6 +5,7 @@ vscode
 *.json
 philo/philo
 philo_bonus/philo_bonus
+*.py
 
 # Prerequisites
 *.d

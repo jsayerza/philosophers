@@ -4,7 +4,7 @@ RM				=	rm -f
 INCLUDES		=	-I.
 
 NAME			=	philo
-PROG_SRC		=	philo.c parse.c
+PROG_SRC		=	philo.c parse.c init.c threads.c check.c routines.c destroy.c
 PROG_OBJ		=	$(PROG_SRC:.c=.o)
 
 NAME_BONUS		=	philo_bonus
@@ -43,6 +43,10 @@ re:		fclean all
 
 run: $(NAME)
 	./$(NAME) $(PARAMS)
+
+valgrind: $(NAME)
+	valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(NAME) $(PARAMS)
+
 
 .PHONY:	all clean fclean re bonus
 

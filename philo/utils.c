@@ -42,3 +42,22 @@ long	ft_atoi(char *s)
 		n = (n * 10) + (*s++ - '0');
 	return (n * sign);
 }
+
+size_t	get_current_time(void)
+{
+	struct timeval	time;
+
+	if (gettimeofday(&time, NULL) == -1)
+        perror("Failed to get current time");
+	return (time.tv_sec * 1000 + time.tv_usec / 1000);
+}
+
+void	ft_usleep(size_t time_to_sleep)
+{
+	size_t	start;
+
+	start = get_current_time();
+	while ((get_current_time() - start) < time_to_sleep)
+		usleep(500);
+	return (0);
+}
