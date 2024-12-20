@@ -22,9 +22,6 @@
 typedef struct s_philo
 {
 	int					num_philos;
-	int					time_to_eat;
-	int					time_to_sleep;
-	int					num_eats;
 }						t_philo;
 
 typedef struct s_prog
