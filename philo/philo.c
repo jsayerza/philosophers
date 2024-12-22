@@ -12,26 +12,53 @@
 
 #include "philo.h"
 
-void	print_philos(t_prog *prog)
+size_t	get_current_time(void)
 {
-	int	i;
+	struct timeval	time;
 
-	i = 0;
-	while (i < prog->num_philos)
+	if (gettimeofday(&time, NULL) == -1)
+		perror("Failed to get current time");
+	return ((size_t)((time.tv_sec * 1000) + (time.tv_usec / 1000)));
+}
+
+void	ft_usleep(size_t time_to_sleep)
+{
+	size_t	start;
+
+	start = get_current_time();
+	while ((get_current_time() - start) < time_to_sleep)
+		usleep(500);
+}
+
+int	get_num_cpus(void)
+{
+	long	num_cpus;
+
+	num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+	if (num_cpus < 0)
 	{
-		printf("Philo (%d):\n", prog->philos[i].philo_id);
-		printf("  Eating: %d  Eaten: %d Time-eat: %d\n", prog->philos[i].eating, \
-			prog->philos[i].meals_eaten, prog->philos[i].time_to_eat);
-		printf("  last_meal: %ld\n", prog->philos[i].last_meal);
-//		prog->philos[i].last_meal = 0;
-//		prog->philos[i].thread = 0;
-		i++;
+		perror("Failed to get the number of CPUs");
+		return (1);
 	}
+	return ((int)num_cpus);
+}
+
+int	get_current_cpu(void)
+{
+	int	cpu;
+
+	cpu = sched_getcpu();
+	if (cpu == -1)
+	{
+		perror("Failed to get the current CPU");
+		return (1);
+	}
+	printf("<CPU:%d> ", cpu);
+	return (0);
 }
 
 int	main(int ac, char **av)
 {
-	//t_philo	philo;
 	t_prog	prog;
 
 	if (ac < 5 || (ac > 6))
@@ -47,18 +74,11 @@ int	main(int ac, char **av)
 	parse_param_sleep(&prog, av[4]);
 	if (ac == 6)
 		parse_param_num_eats(&prog, av[5]);
-
-	printf("num_philos: %d\n", prog.num_philos);
-	printf("time_to_die: %d\n", prog.time_to_die);
-	printf("time_to_eat: %d\n", prog.time_to_eat);
-	printf("time_to_sleep: %d\n", prog.time_to_sleep);
-	printf("num_eats: %d\n", prog.num_eats);
-
 	init_prog(&prog);
 	init_forks(&prog);
 	init_philos(&prog);
 	thread_create(&prog);
-
+	print_philos(&prog);
 	destroy_and_free(&prog, "", false);
 	return (EXIT_SUCCESS);
 }

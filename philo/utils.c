@@ -12,17 +12,43 @@
 
 #include "philo.h"
 
-int		ft_is_num(char *s)
+void	print_msg(char *s, t_philo *philo)
 {
-    if (!s)
-        return (0);
-    while (*s)
-    {
-        if (*s < '0' || *s > '9')
-            return (0);
-        s++;
-    }
-    return (1);
+	size_t	elapsed;
+	size_t	elapsed_last_meal;
+
+	pthread_mutex_lock(philo->print_lock);
+	get_current_cpu();
+	elapsed = get_current_time() - philo->start_time;
+	elapsed_last_meal = get_current_time() - philo->last_meal;
+	if (!philo_is_dead(philo))
+	{
+		if (s[0] == 'a')
+			printf("[%zu] %d %s --> %d\n", elapsed, philo->philo_id, s, \
+				philo->meals_eaten);
+		else
+			printf("[%zu] %d %s [%zu] \n", elapsed, philo->philo_id, s, \
+				elapsed_last_meal);
+	}
+	pthread_mutex_unlock(philo->print_lock);
+}
+
+void	print_philos(t_prog *prog)
+{
+	int	i;
+
+	i = 0;
+	while (i < prog->num_philos)
+	{
+		printf("Philo (%d):\n", prog->philos[i].philo_id);
+		printf("  Eating: %d  Eaten: %d Time-eat: %d last_meal: %ld\n", \
+		prog->philos[i].eating, \
+		prog->philos[i].meals_eaten, prog->philos[i].time_to_eat, \
+		get_current_time() - prog->philos[i].last_meal);
+		printf(" forkL:%p forkR:%p \n", prog->philos[i].fork_left, \
+			prog->philos[i].fork_right);
+		i++;
+	}
 }
 
 long	ft_atoi(char *s)
@@ -43,21 +69,25 @@ long	ft_atoi(char *s)
 	return (n * sign);
 }
 
-size_t	get_current_time(void)
+static int	ft_is_num(char *s)
 {
-	struct timeval	time;
-
-	if (gettimeofday(&time, NULL) == -1)
-        perror("Failed to get current time");
-	return (time.tv_sec * 1000 + time.tv_usec / 1000);
+	if (!s)
+		return (0);
+	while (*s)
+	{
+		if (*s < '0' || *s > '9')
+			return (0);
+		s++;
+	}
+	return (1);
 }
 
-void	ft_usleep(size_t time_to_sleep)
+void	check_is_num(char *s)
 {
-	size_t	start;
-
-	start = get_current_time();
-	while ((get_current_time() - start) < time_to_sleep)
-		usleep(500);
-	return (0);
+	if (!ft_is_num(s))
+	{
+		printf("Incorrect param., not positive int. \
+			Usage: ./philo #philos #time_die #time_eat #time_sleep [#eats]\n");
+		exit(EXIT_FAILURE);
+	}
 }
