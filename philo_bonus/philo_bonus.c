@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo.c                                            :+:      :+:    :+:   */
+/*   philo_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jsayerza <jsayerza@student.42barcelona.fr> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
 int	main(int ac, char **av)
 {
@@ -29,12 +29,11 @@ int	main(int ac, char **av)
 	parse_param_sleep(&prog, av[4]);
 	if (ac == 6)
 		parse_param_num_eats(&prog, av[5]);
+//	printf("Main 1\n");
 	init_prog(&prog);
-	init_forks(&prog);
 	init_philos(&prog);
-	print_philos(prog.philos);
-	thread_create(&prog);
-	print_philos(prog.philos);
-	destroy_and_free(&prog, NULL, false);
+	// thread_create(&prog);
+	// print_philos(&prog);
+	destroy_and_free(&prog, NULL, true, false);
 	return (EXIT_SUCCESS);
 }

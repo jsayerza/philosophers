@@ -12,52 +12,32 @@
 
 #include "philo.h"
 
-static void	philo_eat(t_philo *philo)
+int	philo_is_dead(t_philo *philo)
 {
-	pthread_mutex_lock(philo->fork_right);
-	print_msg("toke right fork", philo);
-	pthread_mutex_lock(philo->fork_left);
-	print_msg("toke left fork", philo);
-	pthread_mutex_lock(philo->meal_lock);
-	print_msg("is eating 🍜 ", philo);
-	philo->eating = true;
-	philo->last_meal = get_current_time();
-	philo->meals_eaten++;
-	philo->eating = false;
-	pthread_mutex_unlock(philo->meal_lock);
-	ft_usleep(philo->time_to_eat);
-	pthread_mutex_unlock(philo->fork_right);
-	print_msg("left right fork", philo);
-	pthread_mutex_unlock(philo->fork_left);
-	print_msg("left left fork", philo);
+	bool	is_dead;
+
+	is_dead = false;
+	pthread_mutex_lock(philo->dead_lock);
+	if (*philo->dead == true)
+		is_dead = true;
+	pthread_mutex_unlock(philo->dead_lock);
+	return (is_dead);
 }
 
-static void	philo_loop(t_philo	*philo)
-{
-	philo_eat(philo);
-	print_msg("is sleeping 💤 ", philo);
-	ft_usleep(philo->time_to_sleep);
-	print_msg("is thinking 💭 ", philo);
-}
-
-void	*start_philo_loop(void *ptr)
+static void	*philo_loop(void *ptr)
 {
 	t_philo	*philo;
 
 	philo = (t_philo *)ptr;
-	if (philo->philo_id % 2 == 0)
-		ft_usleep(1);
-	pthread_mutex_lock(philo->dead_lock);
-	philo->start_time = get_current_time();
-	pthread_mutex_unlock(philo->dead_lock);
-	pthread_mutex_lock(philo->meal_lock);
-	philo->last_meal = get_current_time();
-	pthread_mutex_unlock(philo->meal_lock);
-	while (*philo->dead == 0)
+	while (!philo_is_dead(philo))
 	{
-		philo_loop(philo);
+		if (philo->philo_id % 2 == 0)
+			ft_usleep(1);
+		philo_eat(philo);
+		philo_sleep(philo);
+		philo_think(philo);
 	}
-	return (NULL);
+	return (ptr);
 }
 
 int	thread_create(t_prog *prog)
@@ -65,13 +45,13 @@ int	thread_create(t_prog *prog)
 	pthread_t	controller;
 	int			i;
 
-	if (pthread_create(&controller, NULL, &control, prog) != 0)
+	if (pthread_create(&controller, NULL, &check, prog) != 0)
 		destroy_and_free(prog, "Failed to create controller thread", true);
 	i = 0;
 	while (i < prog->num_philos)
 	{
 		if (pthread_create(&prog->philos[i].thread, NULL, \
-			&start_philo_loop, &prog->philos[i]) != 0)
+			&philo_loop, &prog->philos[i]) != 0)
 			destroy_and_free(prog, "Failed to create philosophers' threads", \
 				true);
 		i++;

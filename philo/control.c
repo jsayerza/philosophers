@@ -12,70 +12,63 @@
 
 #include "philo.h"
 
-static int	check_philo_is_dead(t_philo *philo)
+static int	check_any_dead(t_philo *philos)
 {
-	bool	is_dead;
+	int			i;
+	size_t		cur_time;
+	long int	elapsed_last_meal;
 
-	is_dead = false;
-	pthread_mutex_lock(philo->meal_lock);
-	if (get_current_time() - philo->last_meal >= philo->time_to_die)
-		is_dead = true;
-	pthread_mutex_unlock(philo->meal_lock);
-	return (is_dead);
-}
-
-static int	check_any_dead(t_prog *prog)
-{
-	int	i;
-
-	i = 0;
-	while (i < prog->num_philos)
+	i = -1;
+	while (++i < philos[0].num_philos)
 	{
-		if (check_philo_is_dead(&prog->philos[i]))
+		pthread_mutex_lock(philos[i].meal_lock);
+		cur_time = get_current_time();
+		elapsed_last_meal = cur_time - philos[i].last_meal;
+		if (elapsed_last_meal > philos[i].time_to_die)
 		{
-			print_msg("is dead!!! 💀 ", &prog->philos[i]);
-			pthread_mutex_lock(prog->philos[i].dead_lock);
-			*prog->philos[i].dead = true;
-			pthread_mutex_unlock(prog->philos[i].dead_lock);
-			return (true);
+			pthread_mutex_unlock(philos[i].meal_lock);
+			print_msg("died!!! 💀 ", &philos[i]);
+			return (1);
 		}
-		i++;
+		pthread_mutex_unlock(philos[i].meal_lock);
 	}
-	return (false);
+	return (0);
 }
 
-static int	check_all_ate(t_prog *prog)
+static bool	check_all_ate(t_philo *philos)
 {
 	int	i;
 	int	philos_ate_count;
 
+	if (philos[0].num_eats == 0)
+		return (false);
 	philos_ate_count = 0;
 	i = 0;
-	while (i < prog->num_philos)
+	while (i < philos[0].num_philos)
 	{
-		pthread_mutex_lock(prog->philos[i].meal_lock);
-		if (prog->philos[i].meals_eaten >= prog->num_eats)
+		pthread_mutex_lock(philos[i].meal_lock);
+		if (philos[i].meals_eaten >= philos[i].num_eats)
 			philos_ate_count++;
-		pthread_mutex_unlock(prog->philos[i].meal_lock);
+		pthread_mutex_unlock(philos[i].meal_lock);
 		i++;
 	}
-	if (philos_ate_count == prog->num_philos)
-	{
-		pthread_mutex_lock(prog->philos[0].dead_lock);
-		*prog->philos[0].dead = true;
-		pthread_mutex_unlock(prog->philos[0].dead_lock);
+	if (philos_ate_count == philos[0].num_philos)
 		return (true);
-	}
 	return (false);
 }
 
-void	*check(void *ptr)
+void	*control(void *ptr)
 {
 	t_prog	*prog;
+	int		i;
 
 	prog = (t_prog *)ptr;
-	while (1)
-		if (check_any_dead(prog) == true || check_all_ate(prog) == true)
+	while (true)
+		if (check_any_dead(prog->philos) == true
+			|| check_all_ate(prog->philos) == true)
 			break ;
-	return (ptr);
+	pthread_mutex_lock(&prog->dead_lock);
+	prog->dead_flag = 1;
+	pthread_mutex_unlock(&prog->dead_lock);
+	return (NULL);
 }
