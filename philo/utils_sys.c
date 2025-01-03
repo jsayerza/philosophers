@@ -23,7 +23,7 @@ size_t	get_current_time(void)
 
 	if (gettimeofday(&time, NULL) == -1)
 		perror("Failed to get current time");
-	return ((size_t)((time.tv_sec * 1000) + (time.tv_usec / 1000)));
+	return (time.tv_sec * 1000 + time.tv_usec / 1000);
 }
 
 void	ft_usleep(size_t time_to_sleep)

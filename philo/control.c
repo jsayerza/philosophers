@@ -12,29 +12,6 @@
 
 #include "philo.h"
 
-static int	check_any_dead(t_philo *philos)
-{
-	int			i;
-	size_t		cur_time;
-	long int	elapsed_last_meal;
-
-	i = -1;
-	while (++i < philos[0].num_philos)
-	{
-		pthread_mutex_lock(philos[i].meal_lock);
-		cur_time = get_current_time();
-		elapsed_last_meal = cur_time - philos[i].last_meal;
-		if (elapsed_last_meal > philos[i].time_to_die)
-		{
-			pthread_mutex_unlock(philos[i].meal_lock);
-			print_msg("died!!! 💀 ", &philos[i]);
-			return (1);
-		}
-		pthread_mutex_unlock(philos[i].meal_lock);
-	}
-	return (0);
-}
-
 static bool	check_all_ate(t_philo *philos)
 {
 	int	i;
@@ -57,6 +34,20 @@ static bool	check_all_ate(t_philo *philos)
 	return (false);
 }
 
+static void	set_exit_flag(t_prog *prog)
+{
+	pthread_mutex_lock(&prog->dead_lock);
+	prog->dead_flag = 1;
+	pthread_mutex_unlock(&prog->dead_lock);
+}
+
+static void	set_dead(t_prog *prog, int i)
+{
+	pthread_mutex_unlock(prog->philos[i].meal_lock);
+	print_msg("died!!! 💀 ", &prog->philos[i]);
+	set_exit_flag(prog);
+}
+
 void	*control(void *ptr)
 {
 	t_prog	*prog;
@@ -64,11 +55,24 @@ void	*control(void *ptr)
 
 	prog = (t_prog *)ptr;
 	while (true)
-		if (check_any_dead(prog->philos) == true
-			|| check_all_ate(prog->philos) == true)
+	{
+		i = -1;
+		while (++i < prog->philos[0].num_philos)
+		{
+			pthread_mutex_lock(prog->philos[i].meal_lock);
+			if (get_current_time() - prog->philos[i].last_meal
+				> prog->philos[i].time_to_die
+				&& get_current_time() > prog->philos[i].last_meal
+				&& prog->philos[i].eating == false)
+			{
+				set_dead(prog, i);
+				return (NULL);
+			}
+			pthread_mutex_unlock(prog->philos[i].meal_lock);
+		}
+		if (check_all_ate(prog->philos) == true)
 			break ;
-	pthread_mutex_lock(&prog->dead_lock);
-	prog->dead_flag = 1;
-	pthread_mutex_unlock(&prog->dead_lock);
+	}
+	set_exit_flag(prog);
 	return (NULL);
 }

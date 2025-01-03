@@ -14,11 +14,9 @@
 
 void	print_msg(char *s, t_philo *philo)
 {
-	size_t	elapsed;
-
 	pthread_mutex_lock(philo->print_lock);
-	elapsed = get_current_time() - philo->start_time;
-	printf("%zu %d %s\n", elapsed, philo->philo_id, s);
+	printf("%zu %d %s\n", \
+		get_current_time() - philo->start_time, philo->philo_id, s);
 	pthread_mutex_unlock(philo->print_lock);
 }
 

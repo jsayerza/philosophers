@@ -32,9 +32,7 @@ int	main(int ac, char **av)
 	init_prog(&prog);
 	init_forks(&prog);
 	init_philos(&prog);
-	print_philos(prog.philos);
 	thread_create(&prog);
-	print_philos(prog.philos);
 	destroy_and_free(&prog, NULL, false);
 	return (EXIT_SUCCESS);
 }

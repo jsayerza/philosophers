@@ -87,6 +87,13 @@ void	init_forks(t_prog *prog)
 
 void	init_prog(t_prog *prog)
 {
+	if (prog->num_philos == 1)
+	{
+		printf("0 1 has taken a fork\n");
+		ft_usleep(prog->time_to_die);
+		printf("%ld 1 died!!! 💀\n", prog->time_to_die);
+		exit(EXIT_SUCCESS);
+	}
 	pthread_mutex_init(&prog->dead_lock, NULL);
 	pthread_mutex_init(&prog->meal_lock, NULL);
 	pthread_mutex_init(&prog->print_lock, NULL);
