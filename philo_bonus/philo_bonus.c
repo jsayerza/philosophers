@@ -32,6 +32,6 @@ int	main(int ac, char **av)
 	init_prog(&prog);
 	init_philos(&prog);
 	simulation(&prog);
-	destroy_and_free(&prog, NULL, true, false);
+	freer(&prog, NULL, 0, false);
 	return (EXIT_SUCCESS);
 }

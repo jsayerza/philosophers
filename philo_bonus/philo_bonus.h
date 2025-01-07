@@ -23,20 +23,22 @@
 # include <semaphore.h>
 # include <sys/wait.h>
 
-# define DIE_SEM_NAME "/die_sem"
-# define FORK_SEM_NAME "/fork_sem"
-# define MEAL_SEM_NAME "/meal_sem"
-# define WRITE_SEM_NAME "/write_sem"
-
 # define RESET    "\033[0m"
 # define RED      "\033[31m"
 # define GREEN    "\033[32m"
+
+# define DIE_SEM_NAME "/die_sem"
+# define FORK_SEM_NAME "/fork_sem"
+# define MEAL_SEM_NAME "/meal_sem"
+# define MEALS_EATEN_SEM_NAME "/meals_eaten_sem"
+# define WRITE_SEM_NAME "/write_sem"
 
 typedef struct s_sems
 {
 	sem_t	*fork_sem;
 	sem_t	*die_sem;
 	sem_t	*meal_sem;
+	sem_t	*meals_eaten_sem;
 	sem_t	*print_sem;
 }	t_sems;
 
@@ -50,7 +52,6 @@ typedef struct s_philo
 	size_t	time_to_sleep;
 	size_t	start_time;
 	size_t	last_meal;
-	int		eating;
 	int		meals_eaten;
 	int		*dead;
 	t_sems	*sems;
@@ -88,13 +89,9 @@ void	init(t_prog *prog);
 void	philos_create(t_prog *prog);
 void	simulation(t_prog *prog);
 
-//control.c
-void	*control_ate(void *ptr);
-void	*control_die(void *ptr);
-
 //destroy.c
-void	destroy_and_free(t_prog *prog, char *msg, bool isParentProc, \
-	bool exit_failure);
+void	child_procs_destroy(t_prog *prog, int index);
+void	freer(t_prog *prog, char *msg, int num_procs, bool exit_fail);
 
 //print.c
 void	print_msg(int philo_id, size_t start_time, char *s, sem_t *semt);

@@ -15,17 +15,9 @@
 void	print_msg(int philo_id, size_t start_time, char *s, sem_t *semt)
 {
 	sem_wait(semt);
-	printf("%zu %zu %d %s\n", get_current_time(), get_current_time() - start_time, philo_id, s);
+	printf("%zu %d %s\n", get_current_time() - start_time, philo_id, s);
 	sem_post(semt);
 }
-
-// void	print_msg(int philo_id, size_t start_time, char *s, sem_t *semt)
-// {
-// 	sem_wait(semt);
-// 	printf("%zu %d %s\n", get_current_time() - start_time, philo_id, s);
-// 	sem_post(semt);
-// }
-
 
 void	print_msg_detailed(char *s, t_philo *philo)
 {
@@ -49,11 +41,10 @@ void	print_msg_detailed(char *s, t_philo *philo)
 
 void	print_philosopher(t_philo *philo)
 {
-	int sem_value;
+	int	sem_value;
 
 	printf("Philo (%d):\n", philo->philo_id);
-	printf("  Eating: %d  Eaten: %d\n", \
-		philo->eating, philo->meals_eaten);
+	printf("  Eaten: %d\n", philo->meals_eaten);
 	printf("  #philos: %d #eats: %d\n", \
 		philo->num_philos, philo->num_eats);
 	printf("  #t_die: %ld #t_eat: %ld #t_sleep: %ld\n", \
