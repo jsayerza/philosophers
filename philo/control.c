@@ -44,7 +44,7 @@ static void	set_exit_flag(t_prog *prog)
 static void	set_dead(t_prog *prog, int i)
 {
 	pthread_mutex_unlock(prog->philos[i].meal_lock);
-	print_msg("died!!! 💀 ", &prog->philos[i]);
+	print_msg(RED"died!!! 💀 "RESET, &prog->philos[i]);
 	set_exit_flag(prog);
 }
 

@@ -15,7 +15,7 @@ HEADERS_UTILS	=
 
 #(1)number_of_philosophers (2)time_to_die (3)time_to_eat (4)time_to_sleep (5)[number_of_times_each_philosopher_must_eat]
 #				= 1 2   3   4   5
-PARAMS			= 5 400 200 200
+PARAMS			= 5 800 200 200 7
 
 all: 	$(NAME)
 
@@ -39,18 +39,14 @@ run: $(NAME)
 valgrind1: $(NAME)
 #	For memory leaks and invalid accesses:
 	valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(NAME) $(PARAMS)
-valgrind2: $(NAME)
-#	For thread-related race conditions:
-	valgrind -s --tool=helgrind ./$(NAME) $(PARAMS)
-valgrind3: $(NAME)
-#	For detecting possible thread errors like deadlocks:
-	valgrind -s --tool=drd ./$(NAME) $(PARAMS)
 
-.PHONY:	all clean fclean re run valgrind1 valgrind2 valgrind3
+.PHONY:	all clean fclean re run valgrind1 
 
 
 # source ~/norminette_env/bin/activate
 
+# x veure detall philos al final colocar a philo.c/main() després de thread_create()
+#	print_philos(prog.philos);
 
 # X imprimir init prog detallat colocar a philo.c/main() abans de thread_create()
 # printf("num_philos: %d\n", prog.num_philos);
@@ -60,17 +56,23 @@ valgrind3: $(NAME)
 # printf("num_eats: %d\n", prog.num_eats);
 # printf("Number of CPUs available: %d\n", get_num_cpus());
 
-# x veure detall philos al final colocar a philo.c/main() després de thread_create()
-#	print_philos(prog.philos);
-
 # x veure més detall d'accions, colocar això a routines.c/philo_eat(), després de: philo->eating = false;
 #	print_msg("ate", philo);
 # + renombrar print.c/print_msg_detailed() a print_msg()
 
 # x ctrlar deads a control.c/check_any_dead(), dins l'if
 # long int	elapsed;
-
 # 		elapsed = cur_time - philos[i].start_time;
 # 		printf("%zu [%zu] CheckTime Philo(%d) LastMeal: %zu Elap_last_m: %zu Eating:%d\n", \
 # 		cur_time, elapsed, philos[i].philo_id, \
 # 		philos[i].last_meal, elapsed_last_meal, philos[i].eating);
+
+
+
+
+#valgrind2: $(NAME)
+#	For thread-related race conditions:
+#	valgrind -s --tool=helgrind ./$(NAME) $(PARAMS)
+#valgrind3: $(NAME)
+#	For detecting possible thread errors like deadlocks:
+#	valgrind -s --tool=drd ./$(NAME) $(PARAMS)

@@ -16,7 +16,7 @@ HEADERS_UTILS	=
 
 #(1)number_of_philosophers (2)time_to_die (3)time_to_eat (4)time_to_sleep (5)[number_of_times_each_philosopher_must_eat]
 #				= 1 2   3   4   5
-PARAMS			= 200 800 200 200 7
+PARAMS			= 5 800 200 200 7
 
 all: 	$(NAME)
 
@@ -49,14 +49,3 @@ valgrind1: $(NAME)
 # x veure detall d'ates, colocar això a simulation_bonus.c/philo_eat(), després de: philo->meals_eaten++;
 # snprintf(message, sizeof(message), GREEN"ate --> %d"RESET, philo->meals_eaten);
 # print_msg(philo->philo_id, philo->start_time, message, prog_sems->print_sem);
-
-
-
-
-
-#valgrind2: $(NAME)
-#	For thread-related race conditions:
-#	valgrind -s --tool=helgrind ./$(NAME) $(PARAMS)
-#valgrind3: $(NAME)
-#	For detecting possible thread errors like deadlocks:
-#	valgrind -s --tool=drd ./$(NAME) $(PARAMS)

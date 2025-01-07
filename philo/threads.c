@@ -53,8 +53,8 @@ void	*start_philo_loop(void *ptr)
 	pthread_mutex_lock(philo->meal_lock);
 	philo->last_meal = get_current_time();
 	pthread_mutex_unlock(philo->meal_lock);
-	if (philo->philo_id % 2 == 0)
-		ft_usleep(1);
+	// if (philo->philo_id % 2 == 0)
+	// 	ft_usleep(1);
 	while (1)
 	{
 		pthread_mutex_lock(philo->dead_lock);
