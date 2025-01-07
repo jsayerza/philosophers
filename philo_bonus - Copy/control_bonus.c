@@ -42,10 +42,10 @@ static void	set_exit_flag(t_philo *philo)
 
 }
 
-static void	set_dead(t_philo *philo, t_sems *prog_sems)
+static void	set_dead(t_philo *philo)
 {
 	sem_post(philo->sems->die_sem);
-	print_msg(philo->philo_id, philo->start_time, "died!!! 💀 ", prog_sems->print_sem);
+	print_msg("died!!! 💀 ", philo);
 	set_exit_flag(philo);
 }
 
@@ -87,7 +87,7 @@ void	*control_die(void *ptr)
 				printf("control_die DEAD philo (%d)\n", philo->philo_id);
 				print_philosopher(philo);
 				printf("  cur_time:   %ld\n", get_current_time());
-//				set_dead(philo);
+				set_dead(philo);
 				pause();
 				return (NULL);
 			}

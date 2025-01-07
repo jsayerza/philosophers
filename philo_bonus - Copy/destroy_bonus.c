@@ -32,28 +32,25 @@ void	destroy_and_free(t_prog *prog, char *msg, bool isParentProc, \
 {
 	int	i;
 
-//	printf("dest_free in - prog->num_philos:%d\n", prog->num_philos);
+	printf("dest_free in - prog->num_philos:%d\n", prog->num_philos);
 	if (msg)
 		printf("%s\n", msg);
-	//TDOD: Reparar això del parentproc
-	    // forr pid in process_ids:
-        // kill(pid, SIGTERM)
 	i = -1;
 	if (isParentProc)
 	{
-//		printf("dest_free 1\n");
+		printf("dest_free 1\n");
 		while (++i < prog->num_philos)
 		{
-//			printf("dest_free [%d]\n", i);
+			printf("dest_free [%d]\n", i);
 			if (prog->proc_ids[i] != -1)
 			{
-//				printf("dest_free kill:[%d]\n", i);
+				printf("dest_free kill:[%d]\n", i);
 				kill(prog->proc_ids[i], SIGKILL);
 			}
 		}
 	}
 	sems_close(prog);
-//	printf("dest_free 2\n");
+	printf("dest_free 2\n");
 	// i = -1;
 	// while (++i < prog->num_philos)
 	// 	free(prog->philos[i]);
@@ -61,7 +58,7 @@ void	destroy_and_free(t_prog *prog, char *msg, bool isParentProc, \
 	free(prog->philos);
 	free(prog->proc_ids);
 //	printf("dest_free 3\n");
-//	printf("dest_free out\n");
+	printf("dest_free out\n");
 	if (exit_failure)
 		exit(EXIT_FAILURE);
 }

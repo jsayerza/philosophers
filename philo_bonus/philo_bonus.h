@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo.h                                            :+:      :+:    :+:   */
+/*   philo_bonus.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jsayerza <jsayerza@student.42barcelona.fr> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,73 +10,64 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_H
-# define PHILO_H
-
-//# define _GNU_SOURCE
+#ifndef PHILO_BONUS_H
+# define PHILO_BONUS_H
 
 # include <unistd.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <stdbool.h>
 # include <fcntl.h>
-//# include <sched.h>
-//# include <limits.h>
-//# include <sys/time.h>
-//# include <sys/types.h>
 # include <pthread.h>
 # include <signal.h>
 # include <semaphore.h>
+# include <sys/wait.h>
 
 # define DIE_SEM_NAME "/die_sem"
 # define FORK_SEM_NAME "/fork_sem"
 # define MEAL_SEM_NAME "/meal_sem"
 # define WRITE_SEM_NAME "/write_sem"
 
+# define RESET    "\033[0m"
+# define RED      "\033[31m"
+# define GREEN    "\033[32m"
+
 typedef struct s_sems
 {
-	sem_t	*die_sem;
 	sem_t	*fork_sem;
+	sem_t	*die_sem;
 	sem_t	*meal_sem;
-	sem_t	*write_sem;
+	sem_t	*print_sem;
 }	t_sems;
 
 typedef struct s_philo
 {
-	// pthread_t	thread;
-	int			philo_id;
-	int			time_to_die;
-	int			time_to_eat;
-	int			time_to_sleep;
-	size_t		start_time;
-	size_t		last_meal;
-	bool		eating;
-	int			meals_eaten;
-	bool		*dead;
-	t_sems		*sems;
-	// pthread_mutex_t	*fork_left;
-	// pthread_mutex_t	*fork_right;
-	// pthread_mutex_t	*dead_lock;
-	// pthread_mutex_t	*meal_lock;
-	// pthread_mutex_t	*print_lock;
-}					t_philo;
+	int		philo_id;
+	int		num_philos;
+	int		num_eats;
+	size_t	time_to_die;
+	size_t	time_to_eat;
+	size_t	time_to_sleep;
+	size_t	start_time;
+	size_t	last_meal;
+	int		eating;
+	int		meals_eaten;
+	int		*dead;
+	t_sems	*sems;
+}			t_philo;
 
 typedef struct s_prog
 {
-	int			num_philos;
-	int			time_to_die;
-	int			time_to_eat;
-	int			time_to_sleep;
-	int			num_eats;
-	bool		dead_flag;
-	t_philo		*philos;
-	pid_t		*proc_id;
-	t_sems		*sems;
-	// pthread_mutex_t	*forks;
-	// pthread_mutex_t	dead_lock;
-	// pthread_mutex_t	meal_lock;
-	// pthread_mutex_t	print_lock;
-}				t_prog;
+	int		num_philos;
+	size_t	time_to_die;
+	size_t	time_to_eat;
+	size_t	time_to_sleep;
+	int		num_eats;
+	int		exit_flag;
+	t_philo	*philos;
+	pid_t	*proc_ids;
+	t_sems	*sems;
+}			t_prog;
 
 //philo_bonus.c
 
@@ -93,25 +84,22 @@ void	init_forks(t_prog *prog);
 void	init_prog(t_prog *prog);
 void	init(t_prog *prog);
 
-//threats.c
-int		philo_is_dead(t_philo *philo);
-int		thread_create(t_prog *prog);
-
-//routines.c
-void	philo_sleep(t_philo *philo);
-void	philo_eat(t_philo *philo);
-void	philo_think(t_philo *philo);
+//simulation.c
+void	philos_create(t_prog *prog);
+void	simulation(t_prog *prog);
 
 //control.c
-void	*check(void *ptr);
+void	*control_ate(void *ptr);
+void	*control_die(void *ptr);
 
 //destroy.c
 void	destroy_and_free(t_prog *prog, char *msg, bool isParentProc, \
 	bool exit_failure);
 
 //print.c
-void	print_msg(char *s, t_philo *philo);
-void	print_philos(t_prog *prog);
+void	print_msg(int philo_id, size_t start_time, char *s, sem_t *semt);
+void	print_philosopher(t_philo *philo);
+void	print_philos(t_philo *philos);
 
 //utils.c
 long	ft_atoi(char *s);

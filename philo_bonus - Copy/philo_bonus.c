@@ -31,7 +31,9 @@ int	main(int ac, char **av)
 		parse_param_num_eats(&prog, av[5]);
 	init_prog(&prog);
 	init_philos(&prog);
-	simulation(&prog);
+	print_philos(prog.philos);
+	thread_create(&prog);
+	print_philos(prog.philos);
 	destroy_and_free(&prog, NULL, true, false);
 	return (EXIT_SUCCESS);
 }
