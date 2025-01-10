@@ -22,7 +22,6 @@ static void	init_philosopher(t_prog *prog, t_philo *philo, int i)
 	prog->philos[i].time_to_eat = prog->time_to_eat;
 	prog->philos[i].time_to_sleep = prog->time_to_sleep;
 	prog->philos[i].fork_left = &prog->forks[i];
-	prog->philos[i].eating = false;
 	prog->philos[i].meals_eaten = 0;
 	prog->philos[i].dead = &prog->dead_flag;
 	prog->philos[i].start_time = get_current_time();

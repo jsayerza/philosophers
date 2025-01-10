@@ -18,15 +18,11 @@ static void	philo_eat(t_philo *philo)
 	print_msg("toke left fork", philo);
 	pthread_mutex_lock(philo->fork_right);
 	print_msg("toke right fork", philo);
-	pthread_mutex_lock(philo->meal_lock);
-	philo->eating = true;
-	pthread_mutex_unlock(philo->meal_lock);
 	print_msg("is eating 🍜 ", philo);
 	ft_usleep(philo->time_to_eat);
 	pthread_mutex_lock(philo->meal_lock);
 	philo->last_meal = get_current_time();
 	philo->meals_eaten++;
-	philo->eating = false;
 	pthread_mutex_unlock(philo->meal_lock);
 	pthread_mutex_unlock(philo->fork_left);
 	print_msg("left left fork", philo);
@@ -53,8 +49,8 @@ void	*start_philo_loop(void *ptr)
 	pthread_mutex_lock(philo->meal_lock);
 	philo->last_meal = get_current_time();
 	pthread_mutex_unlock(philo->meal_lock);
-	// if (philo->philo_id % 2 == 0)
-	// 	ft_usleep(1);
+	if (philo->philo_id % 2 == 0)
+		ft_usleep(1);
 	while (1)
 	{
 		pthread_mutex_lock(philo->dead_lock);

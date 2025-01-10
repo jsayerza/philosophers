@@ -62,8 +62,7 @@ void	*control(void *ptr)
 			pthread_mutex_lock(prog->philos[i].meal_lock);
 			if (get_current_time() - prog->philos[i].last_meal
 				> prog->philos[i].time_to_die
-				&& get_current_time() > prog->philos[i].last_meal
-				&& prog->philos[i].eating == false)
+				&& get_current_time() > prog->philos[i].last_meal)
 			{
 				set_dead(prog, i);
 				return (NULL);

@@ -4,7 +4,8 @@ RM				=	rm -f
 INCLUDES		=	-I.
 
 NAME			=	philo_bonus
-PROG_SRC		=	philo_bonus.c init_bonus.c simulation_bonus.c print_bonus.c destroy_bonus.c\
+PROG_SRC		=	philo_bonus.c init_bonus.c simulation_bonus.c simulation_control_bonus.c\
+					print_bonus.c destroy_bonus.c\
 					../philo/parse.c 
 PROG_OBJ		=	$(PROG_SRC:.c=.o)
 
@@ -16,7 +17,7 @@ HEADERS_UTILS	=
 
 #(1)number_of_philosophers (2)time_to_die (3)time_to_eat (4)time_to_sleep (5)[number_of_times_each_philosopher_must_eat]
 #				= 1 2   3   4   5
-PARAMS			= 5 800 200 200 7
+PARAMS			= 4 410 200 200 
 
 all: 	$(NAME)
 
@@ -37,12 +38,16 @@ re:		fclean all
 run: $(NAME)
 	./$(NAME) $(PARAMS)
 
+valgrind0: $(NAME)
+#	For memory leaks and invalid accesses:
+	valgrind ./$(NAME) $(PARAMS)
+
 valgrind1: $(NAME)
 #	For memory leaks and invalid accesses:
 	valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(NAME) $(PARAMS)
 
 
-.PHONY:	all clean fclean re run valgrind1
+.PHONY:	all clean fclean re run valgrind0 valgrind1
 
 # source ~/norminette_env/bin/activate
 

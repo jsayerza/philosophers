@@ -50,7 +50,8 @@ void	init_sems(t_prog *prog)
 	sem_unlink(FORK_SEM_NAME);
 	sem_unlink(MEAL_SEM_NAME);
 	sem_unlink(MEALS_EATEN_SEM_NAME);
-	sem_unlink(WRITE_SEM_NAME);
+	sem_unlink(PRINT_SEM_NAME);
+	sem_unlink(START_SEM_NAME);
 	prog->sems->die_sem = sem_open(DIE_SEM_NAME, O_CREAT | O_EXCL, 0644, 1);
 	prog->sems->fork_sem = \
 		sem_open(FORK_SEM_NAME, O_CREAT | O_EXCL, 0644, prog->num_philos);
@@ -58,11 +59,14 @@ void	init_sems(t_prog *prog)
 		sem_open(MEAL_SEM_NAME, O_CREAT | O_EXCL, 0644, prog->num_philos);
 	prog->sems->meals_eaten_sem = \
 		sem_open(MEALS_EATEN_SEM_NAME, O_CREAT | O_EXCL, 0644, 0);
-	prog->sems->print_sem = sem_open(WRITE_SEM_NAME, O_CREAT | O_EXCL, 0644, 1);
-	if (prog->sems->die_sem == SEM_FAILED || prog->sems->fork_sem == SEM_FAILED
+	prog->sems->print_sem = sem_open(PRINT_SEM_NAME, O_CREAT | O_EXCL, 0644, 1);
+	prog->sems->start_sem = sem_open(START_SEM_NAME, O_CREAT | O_EXCL, 0644, 1);
+	if (prog->sems->die_sem == SEM_FAILED
+		|| prog->sems->fork_sem == SEM_FAILED
 		|| prog->sems->meal_sem == SEM_FAILED
 		|| prog->sems->meals_eaten_sem == SEM_FAILED
-		|| prog->sems->print_sem == SEM_FAILED)
+		|| prog->sems->print_sem == SEM_FAILED
+		|| prog->sems->start_sem == SEM_FAILED)
 		freer(prog, "Failed to open semaphores", 0, true);
 }
 

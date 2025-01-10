@@ -26,12 +26,17 @@
 # define RESET    "\033[0m"
 # define RED      "\033[31m"
 # define GREEN    "\033[32m"
+# define BLUE     "\033[34m"
+# define PINK     "\033[35m"
+# define GREY     "\033[37m"
+# define BROWN    "\033[33m"
 
 # define DIE_SEM_NAME "/die_sem"
 # define FORK_SEM_NAME "/fork_sem"
 # define MEAL_SEM_NAME "/meal_sem"
 # define MEALS_EATEN_SEM_NAME "/meals_eaten_sem"
-# define WRITE_SEM_NAME "/write_sem"
+# define PRINT_SEM_NAME "/print_sem"
+# define START_SEM_NAME "/start_sem"
 
 typedef struct s_sems
 {
@@ -40,6 +45,7 @@ typedef struct s_sems
 	sem_t	*meal_sem;
 	sem_t	*meals_eaten_sem;
 	sem_t	*print_sem;
+	sem_t	*start_sem;
 }	t_sems;
 
 typedef struct s_philo
@@ -63,6 +69,7 @@ typedef struct s_prog
 	size_t	time_to_die;
 	size_t	time_to_eat;
 	size_t	time_to_sleep;
+	size_t	start_time;
 	int		num_eats;
 	int		exit_flag;
 	t_philo	*philos;
@@ -89,8 +96,12 @@ void	init(t_prog *prog);
 void	philos_create(t_prog *prog);
 void	simulation(t_prog *prog);
 
+//simulation_control.c
+void	philo_loop(t_philo *philo);
+void	*philo_ctrl(void *ptr);
+
 //destroy.c
-void	child_procs_destroy(t_prog *prog, int index);
+void	child_procs_kill(t_prog *prog, int index);
 void	freer(t_prog *prog, char *msg, int num_procs, bool exit_fail);
 
 //print.c

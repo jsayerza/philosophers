@@ -36,7 +36,6 @@ typedef struct s_philo
 	size_t			time_to_sleep;
 	size_t			last_meal;
 	size_t			start_time;
-	bool			eating;
 	int				meals_eaten;
 	int				*dead;
 	pthread_mutex_t	*fork_left;

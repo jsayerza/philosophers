@@ -12,109 +12,70 @@
 
 #include "philo_bonus.h"
 
-static void	philo_eat(t_philo *philo, t_sems *prog_sems)
+static void	start_simulation(t_prog *prog, int i)
 {
-	char	message[100];
+	pthread_t	ctrl_die;
+	t_philo		*philo;
 
-	sem_wait(prog_sems->fork_sem);
-	print_msg(philo->philo_id, philo->start_time, "has taken a fork", \
-		prog_sems->print_sem);
-	sem_wait(prog_sems->fork_sem);
-	print_msg(philo->philo_id, philo->start_time, "has taken a fork", \
-		prog_sems->print_sem);
-	print_msg(philo->philo_id, philo->start_time, "is eating 🍜 ", \
-		prog_sems->print_sem);
-	ft_usleep(philo->time_to_eat);
-	sem_wait(philo->sems->meal_sem);
-	philo->last_meal = get_current_time();
-	philo->meals_eaten++;
-	if (philo->meals_eaten == philo->num_eats)
-		sem_post(prog_sems->meals_eaten_sem);
-	sem_post(philo->sems->meal_sem);
-	sem_post(prog_sems->fork_sem);
-	print_msg(philo->philo_id, philo->start_time, "has put down a fork", \
-		prog_sems->print_sem);
-	sem_post(prog_sems->fork_sem);
-	print_msg(philo->philo_id, philo->start_time, "has put down a fork", \
-		prog_sems->print_sem);
+	philo = &prog->philos[i];
+	if (pthread_create(&ctrl_die, NULL, &philo_ctrl, philo) != 0)
+		freer(prog, "Failed to create eats controller thread", \
+			prog->num_philos, true);
+	philo->start_time = prog->start_time;
+	philo->last_meal = prog->start_time;
+	if (i % 2 == 0)
+		ft_usleep(1);
+	while (*(philo->dead) == 0)
+		philo_loop(philo);
+	if (pthread_join(ctrl_die, NULL) != 0)
+		freer(prog, "Failed to create eats controller thread", \
+			prog->num_philos, true);
 }
 
-void	start_philo_loop(t_philo *philo)
+static void	*ctrl_eats_loop(void *ptr)
 {
-	char	message[100];
+	t_prog	*prog;
+	int		philos_ate_count;
 
-	philo->start_time = get_current_time();
-	philo->last_meal = get_current_time();
-	while (true)
-	{
-		sem_wait(philo->sems->meal_sem);
-		if (get_current_time() - philo->last_meal > philo->time_to_die)
-		{
-			print_msg(philo->philo_id, philo->start_time, \
-				RED"died!!! 💀 "RESET, philo->sems->print_sem);
-			sem_post(philo->sems->meal_sem);
-			sem_wait(philo->sems->die_sem);
-			*philo->dead = 1;
-			sem_post(philo->sems->die_sem);
-			break ;
-		}
-		sem_post(philo->sems->meal_sem);
-		print_msg(philo->philo_id, philo->start_time, \
-			"is thinking 💭 ", philo->sems->print_sem);
-		philo_eat(philo, philo->sems);
-		print_msg(philo->philo_id, philo->start_time, \
-			"is sleeping 💤 ", philo->sems->print_sem);
-		ft_usleep(philo->time_to_sleep);
-	}
-}
-
-void	philos_create(t_prog *prog)
-{
-	int			i;
-
-	i = -1;
-	while (++i < prog->num_philos)
-	{
-		prog->proc_ids[i] = fork();
-		if (prog->proc_ids[i] == -1)
-			freer(prog, "Failed to create philos processes", i, true);
-		else if (prog->proc_ids[i] == 0)
-			start_philo_loop(&prog->philos[i]);
-	}
-}
-
-static void	controller_loop(t_prog *prog)
-{
-	int	philos_ate_count;
-
+	prog = (t_prog *)ptr;
 	while (prog->exit_flag != 1)
 	{
-		if (prog->num_eats > 0)
+		philos_ate_count = 0;
+		while (philos_ate_count < prog->num_philos)
 		{
-			philos_ate_count = 0;
-			while (philos_ate_count < prog->num_philos)
-			{
-				sem_wait(prog->sems->meals_eaten_sem);
-				philos_ate_count++;
-			}
-			prog->exit_flag = 1;
+			sem_wait(prog->sems->meals_eaten_sem);
+			philos_ate_count++;
 		}
+		prog->exit_flag = 1;
 	}
+	return (NULL);
 }
 
 void	simulation(t_prog *prog)
 {
-	pid_t	controller_pid;
+	pthread_t	ctrl_eats;
+	pid_t		pid;
+	int			i;
 
-	philos_create(prog);
-	controller_pid = fork();
-	if (controller_pid == -1)
-		freer(prog, "Failed to create controller process", \
-			prog->num_philos, true);
-	if (controller_pid == 0)
+	if (prog->num_eats > 0)
 	{
-		controller_loop(prog);
+		if (pthread_create(&ctrl_eats, NULL, ctrl_eats_loop, prog) != 0)
+			freer(prog, "Failed to create eats controller thread", \
+				prog->num_philos, true);
+		if (pthread_join(ctrl_eats, NULL) != 0)
+			freer(prog, "Failed join thread", prog->num_philos, true);
+	}
+	prog->start_time = get_current_time();
+	i = -1;
+	while (++i < prog->philos[0].num_philos)
+	{
+		pid = fork();
+		prog->proc_ids[i] = pid;
+		if (pid == -1)
+			freer(prog, "Failed to create philos processes", i, true);
+		else if (pid == 0)
+			start_simulation(prog, i);
 	}
 	waitpid(-1, NULL, 0);
-	child_procs_destroy(prog, prog->num_philos);
+	child_procs_kill(prog, prog->num_philos);
 }

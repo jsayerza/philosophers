@@ -14,10 +14,18 @@
 
 void	print_msg(char *s, t_philo *philo)
 {
-	pthread_mutex_lock(philo->print_lock);
-	printf("%zu %d %s\n", \
-		get_current_time() - philo->start_time, philo->philo_id, s);
-	pthread_mutex_unlock(philo->print_lock);
+	int	exit_flag;
+
+	pthread_mutex_lock(philo->dead_lock);
+	exit_flag = *(philo->dead);
+	pthread_mutex_unlock(philo->dead_lock);
+	if (exit_flag == 0)
+	{
+		pthread_mutex_lock(philo->print_lock);
+		printf("%zu %d %s\n", \
+			get_current_time() - philo->start_time, philo->philo_id, s);
+		pthread_mutex_unlock(philo->print_lock);
+	}
 }
 
 void	print_msg_detailed(char *s, t_philo *philo)
@@ -43,8 +51,7 @@ void	print_msg_detailed(char *s, t_philo *philo)
 void	print_philosopher(t_philo *philo)
 {
 	printf("Philo (%d):\n", philo->philo_id);
-	printf("  Eating: %d  Eaten: %d\n", \
-		philo->eating, philo->meals_eaten);
+	printf("  Eaten: %d\n", philo->meals_eaten);
 	printf("  #philos: %d #eats: %d\n", \
 		philo->num_philos, philo->num_eats);
 	printf("  start_time: %zu\n", \
